@@ -120,6 +120,6 @@ Deno.serve(async request => {
     return jsonResponse({ orderId: order.order_id, status: "COMPLETED", items: order.items }, 200, origin);
   } catch (error) {
     console.error("Error al verificar captura PayPal.", error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "No se pudo verificar el pago." }, 500, origin);
+    return jsonResponse({ error: "No se pudo verificar el pago. Contacta con la tienda si PayPal mostró un cobro." }, 500, origin);
   }
 });
