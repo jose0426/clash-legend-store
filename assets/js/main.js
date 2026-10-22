@@ -66,7 +66,7 @@ function renderProducts() {
         ${product.bases ? `<div class="bundle-detail"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ${product.bases} bases incluidas</div>` : ""}
         <div class="product-bottom"><strong class="product-price">${product.price === 0 ? "Gratis" : money(product.price)}${product.price > 0 ? '<small> USD</small>' : ""}</strong>
           ${product.type === "free"
-            ? `<button class="button button-small button-muted" type="button" data-action="link" data-id="${escapeHtml(product.id)}" ${product.link && isHttpsUrl(product.link) ? "" : "disabled"}>${product.link && isHttpsUrl(product.link) ? "Abrir base gratis" : "Enlace pendiente"}</button>`
+            ? `<button class="button button-small button-muted" type="button" data-action="link" data-id="${escapeHtml(product.id)}" ${product.link && isHttpsUrl(product.link) ? "" : "disabled"}>${product.link && isHttpsUrl(product.link) ? '<i class="fa-solid fa-download" aria-hidden="true"></i> Descargar' : "Enlace pendiente"}</button>`
             : `<button class="button button-small button-primary" type="button" data-action="add" data-id="${escapeHtml(product.id)}"><i class="fa-solid fa-plus" aria-hidden="true"></i> Agregar al carrito</button>`}
         </div>
       </div>
