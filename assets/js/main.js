@@ -64,7 +64,7 @@ function renderProducts() {
         <div class="product-category">${escapeHtml(product.categoryLabel)}</div>
         <h3>${escapeHtml(product.name)}</h3><p>${escapeHtml(product.description)}</p>
         ${product.bases ? `<div class="bundle-detail"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ${product.bases} bases incluidas</div>` : ""}
-        <div class="product-bottom"><strong class="product-price">${product.price === 0 ? "Gratis" : "Aporte: " + money(product.price)}${product.price > 0 ? '<small>USD</small>' : ""}</strong>
+        <div class="product-bottom"><strong class="product-price">${product.price === 0 ? "Gratis" : "Aporte: " + money(product.price)}${product.price > 0 ? '<small> USD</small>' : ""}</strong>
           ${product.type === "free"
             ? `<button class="button button-small button-muted" type="button" data-action="link" data-id="${escapeHtml(product.id)}" ${product.link && isHttpsUrl(product.link) ? "" : "disabled"}>${product.link && isHttpsUrl(product.link) ? '<i class="fa-solid fa-download" aria-hidden="true"></i> Descargar' : "Enlace pendiente"}</button>`
             : `<button class="button button-small button-primary" type="button" data-action="add" data-id="${escapeHtml(product.id)}"><i class="fa-solid fa-heart" aria-hidden="true"></i> Aportar por esta base</button>`}
