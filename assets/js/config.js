@@ -5,4 +5,4 @@ export const supabaseConfig = {
   ownerEmail: "josegood222@gmail.com"
 };
 
-export const paypalClientId = "";
+export const paypalClientId = "BAAqo1bya_eijvEZCnOdgH_Q-0H0msMLUVNybDtSztw2yeCehe-feblHvbOtzfJ8UMVcGOThLivxPgStEI";
