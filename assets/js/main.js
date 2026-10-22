@@ -232,6 +232,25 @@ async function loadPayPalSdk() {
   return paypalSdkPromise;
 }
 
+async function requestPaymentFunction(name, payload) {
+  let response;
+  try {
+    response = await fetch(`${supabaseConfig.url}/functions/v1/${name}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: supabaseConfig.anonKey },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    console.error(`No se pudo conectar con la función ${name}.`, error);
+    throw new Error("El servidor de pagos de Supabase no está disponible o aún no está desplegado. No se realizó ni confirmó ningún cobro.");
+  }
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result.error || "El servidor de pagos no pudo procesar la solicitud. No se confirmó ningún cobro.");
+  }
+  return result;
+}
+
 async function renderPayPalButton(method) {
   if (!cart.items.length) return;
   activePaymentButton = method;
@@ -251,26 +270,18 @@ async function renderPayPalButton(method) {
       fundingSource,
       style: { layout: "vertical", label: method === "card" ? "pay" : "paypal", shape: "rect", height: 44 },
       createOrder: async () => {
-        const response = await fetch(`${supabaseConfig.url}/functions/v1/paypal-create-order`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", apikey: supabaseConfig.anonKey },
-          body: JSON.stringify({ items: cart.items.map(item => ({ id: item.id, quantity: item.quantity })) })
+        const result = await requestPaymentFunction("paypal-create-order", {
+          items: cart.items.map(item => ({ id: item.id, quantity: item.quantity }))
         });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok || typeof result.orderId !== "string") {
+        if (typeof result.orderId !== "string") {
           throw new Error(result.error || "No se pudo iniciar el pago.");
         }
         return result.orderId;
       },
       onApprove: async data => {
         paymentStatus.textContent = "Verificando el pago con PayPal…";
-        const response = await fetch(`${supabaseConfig.url}/functions/v1/paypal-capture-order`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", apikey: supabaseConfig.anonKey },
-          body: JSON.stringify({ orderId: data.orderID })
-        });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok || result.status !== "COMPLETED" || !Array.isArray(result.items)) {
+        const result = await requestPaymentFunction("paypal-capture-order", { orderId: data.orderID });
+        if (result.status !== "COMPLETED" || !Array.isArray(result.items)) {
           throw new Error(result.error || "PayPal no confirmó el pago. No cierres la página; puedes volver a intentarlo.");
         }
         cart.removePurchased(result.items);
