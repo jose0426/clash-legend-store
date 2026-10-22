@@ -23,9 +23,10 @@ function isStoredOrder(value: unknown): value is StoredOrder {
   return typeof order.order_id === "string" &&
     typeof order.reference_id === "string" &&
     (typeof order.expected_amount === "string" || typeof order.expected_amount === "number") &&
+    Number.isFinite(Number(order.expected_amount)) && Number(order.expected_amount) > 0 &&
     order.currency === "USD" &&
-    (Array.isArray(order.items) || (typeof order.items === "object" && order.items !== null)) &&
-    typeof order.status === "string";
+    Array.isArray(order.items) &&
+    (order.status === "created" || order.status === "captured");
 }
 
 function amountInCents(value: unknown): number {
