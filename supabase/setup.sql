@@ -23,12 +23,26 @@ create table if not exists public.product_deliveries (
   design_link text not null check (design_link like 'https://%')
 );
 
+create table if not exists public.payment_orders (
+  order_id text primary key,
+  reference_id uuid not null unique,
+  expected_amount numeric(10,2) not null check (expected_amount > 0),
+  currency text not null default 'USD' check (currency = 'USD'),
+  items jsonb not null,
+  status text not null default 'created' check (status in ('created', 'captured')),
+  created_at timestamptz not null default now(),
+  captured_at timestamptz
+);
+
 alter table public.products enable row level security;
 alter table public.product_deliveries enable row level security;
+alter table public.payment_orders enable row level security;
 
 grant select on public.products to anon, authenticated;
 grant insert, update, delete on public.products to authenticated;
 grant select, insert, update, delete on public.product_deliveries to authenticated;
+revoke all on public.payment_orders from anon, authenticated;
+grant all on public.payment_orders to service_role;
 
 drop policy if exists "Published products are public" on public.products;
 create policy "Published products are public"
