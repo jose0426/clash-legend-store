@@ -15,7 +15,7 @@
   <script type="module" src="assets/js/main.js"></script>
 </head>
 <body>
-  <div class="announcement"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> DISEÑOS GRATUITOS Y PREMIUM · Pago externo por PayPal.Me</div>
+  <div class="announcement"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> DISEÑOS GRATUITOS Y PREMIUM · Pago seguro con PayPal o tarjeta</div>
   <header class="site-header">
     <a class="brand" href="#inicio" aria-label="Clash Legend Store, inicio">
       <span class="brand-mark"><i class="fa-solid fa-crown" aria-hidden="true"></i></span>
@@ -129,7 +129,7 @@
       <div class="trust-grid">
         <article><i class="fa-solid fa-mobile-screen-button" aria-hidden="true"></i><h3>Diseño responsive</h3><p>Explora el catálogo cómodamente desde cualquier pantalla.</p></article>
         <article><i class="fa-solid fa-cart-shopping" aria-hidden="true"></i><h3>Carrito persistente</h3><p>Tu selección se conserva en este navegador.</p></article>
-        <article><i class="fa-brands fa-paypal" aria-hidden="true"></i><h3>Pago con PayPal.Me</h3><p>El pago se completa en PayPal. Confirma el abono antes de entregar una base premium.</p></article>
+        <article><i class="fa-brands fa-paypal" aria-hidden="true"></i><h3>Pago seguro</h3><p>Elige PayPal o tarjeta de débito/crédito. Los datos de pago se procesan en PayPal.</p></article>
       </div>
     </section>
   </main>
@@ -143,10 +143,10 @@
       </div>
       <div class="footer-column"><h3>Explora</h3><a href="#inicio">Inicio</a><a href="#productos">Catálogo</a><a href="#gratuitas">Bases gratuitas</a></div>
       <div class="footer-column"><h3>Categorías</h3><a href="#productos" data-filter-link="legend">Leyenda</a><a href="#productos" data-filter-link="war">Guerra</a><a href="#productos" data-filter-link="bundle">Paquetes premium</a></div>
-      <div class="footer-column"><h3>Contacto</h3><a href="mailto:hola@tudominio.com">hola@tudominio.com</a><a href="https://paypal.me/AugustoGamerCoC97" target="_blank" rel="noopener noreferrer">PayPal.Me</a><a href="admin.html">Acceso del administrador</a></div>
+      <div class="footer-column"><h3>Contacto</h3><a href="mailto:hola@tudominio.com">hola@tudominio.com</a><a href="admin.html">Acceso del administrador</a></div>
     </div>
     <div class="footer-bottom"><span>© <span id="current-year"></span> Clash Legend Store.</span><a href="#aviso-legal">Aviso legal</a></div>
-    <p class="legal-note" id="aviso-legal">Clash of Clans y sus elementos son marcas de sus respectivos titulares. Esta tienda no está afiliada, respaldada ni patrocinada por Supercell. Los pagos de PayPal.Me se verifican manualmente; no se procesan ni confirman automáticamente en este sitio.</p>
+    <p class="legal-note" id="aviso-legal">Clash of Clans y sus elementos son marcas de sus respectivos titulares. Esta tienda no está afiliada, respaldada ni patrocinada por Supercell. Los pagos se procesan y verifican a través de PayPal; la disponibilidad de tarjeta depende de PayPal y del país del comprador.</p>
   </footer>
 
   <div class="drawer-backdrop" hidden></div>
@@ -154,7 +154,8 @@
     <div class="drawer-header"><div><span class="eyebrow">TU SELECCIÓN</span><h2>Carrito <span class="cart-count-inline">0</span></h2></div><button class="icon-button drawer-close" type="button" aria-label="Cerrar carrito"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
     <div class="cart-items"></div>
     <div class="cart-empty"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i><h3>Tu carrito está vacío</h3><p>Explora las bases premium y agrega tus favoritas.</p><button class="button button-outline continue-shopping" type="button">Seguir explorando</button></div>
-    <div class="cart-summary"><div class="summary-line"><span>Subtotal</span><strong class="cart-subtotal">$0.00</strong></div><div class="summary-line summary-total"><span>Total</span><strong class="cart-total">$0.00 <small>USD</small></strong></div><p>Serás redirigido a PayPal.Me. Este enlace no confirma el pago en la tienda; la entrega premium se verifica manualmente.</p><button class="button button-primary checkout-button" type="button"><i class="fa-brands fa-paypal" aria-hidden="true"></i> Pagar con PayPal</button></div>
+    <div class="cart-summary"><div class="summary-line"><span>Subtotal</span><strong class="cart-subtotal">$0.00</strong></div><div class="summary-line summary-total"><span>Total</span><strong class="cart-total">$0.00 <small>USD</small></strong></div><p class="checkout-note">Elige PayPal o tarjeta. El pago se procesa de forma segura por PayPal; la tienda no almacena datos de tarjetas.</p><button class="button button-primary checkout-button" type="button"><i class="fa-solid fa-lock" aria-hidden="true"></i> Elegir método de pago</button></div>
+    <section class="payment-checkout" id="payment-checkout" hidden aria-label="Métodos de pago"><h3>Selecciona cómo pagar</h3><div class="payment-methods"><label class="payment-method"><input type="radio" name="payment-method" value="paypal" checked><span><i class="fa-brands fa-paypal" aria-hidden="true"></i><strong>PayPal</strong><small>Paga con tu cuenta PayPal</small></span></label><label class="payment-method"><input type="radio" name="payment-method" value="card"><span><i class="fa-regular fa-credit-card" aria-hidden="true"></i><strong>Tarjeta</strong><small>Débito o crédito, si está disponible</small></span></label></div><div class="paypal-button-slot" id="paypal-button-slot"></div><p class="payment-status" id="payment-status" role="status" aria-live="polite"></p></section>
   </aside>
   <div class="toast" role="status" aria-live="polite"></div>
 </body>

@@ -28,11 +28,25 @@ GitHub Pages aloja archivos estáticos: no es un backend ni sustituye Supabase. 
 
 La tienda pública consulta únicamente fichas publicadas. Las imágenes se guardan en el bucket `product-images`. Los enlaces gratuitos se muestran en el catálogo. Los enlaces premium se guardan separados en `product_deliveries`, cuya política solo permite lectura y cambios desde la cuenta de administración; no se exponen al catálogo público.
 
-## PayPal.Me
+## PayPal Checkout
 
-El carrito abre el enlace de PayPal.Me proporcionado con el importe calculado. Esto **no es una integración de pagos automática**: el sitio no recibe confirmación del pago ni genera pedidos verificados. Comprueba manualmente cada pago en tu cuenta PayPal antes de entregar un enlace premium. No entregues productos basándote en una captura enviada por el comprador.
+El checkout permite escoger PayPal o tarjeta de débito/crédito. PayPal decide si la opción de tarjeta está disponible para la cuenta del vendedor y el país del comprador. El navegador nunca recibe el secreto de PayPal ni almacena datos de tarjetas.
 
-PayPal.Me no ofrece webhooks para que esta página confirme compras. Para confirmar automáticamente los pagos, crear pedidos y entregar enlaces, hace falta una integración PayPal Checkout respaldada por un servidor (por ejemplo, Node.js/Express o funciones serverless), credenciales API privadas guardadas solo en servidor, y verificación de webhooks de PayPal. No coloques credenciales privadas en `config.js` y nunca recopiles datos de tarjetas en el frontend.
+Para habilitar pagos reales:
+
+1. En PayPal Developer crea una aplicación REST y copia su **Client ID** público en `paypalClientId` de [assets/js/config.js](./assets/js/config.js). No pongas ahí el Client Secret.
+2. Instala Supabase CLI y enlaza este proyecto. Ejecuta `supabase db push` (o vuelve a ejecutar `supabase/setup.sql` en SQL Editor) para crear la tabla privada `payment_orders`.
+3. Configura los secretos del servidor de Supabase Edge Functions: `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `PAYPAL_ALLOWED_ORIGINS` y `PAYPAL_API_BASE`. Por ejemplo, en PowerShell:
+
+   ```powershell
+   supabase secrets set PAYPAL_CLIENT_ID="TU_CLIENT_ID" PAYPAL_CLIENT_SECRET="TU_CLIENT_SECRET" SUPABASE_SERVICE_ROLE_KEY="TU_SERVICE_ROLE_KEY" PAYPAL_ALLOWED_ORIGINS="https://jose0426.github.io,http://127.0.0.1:5500" PAYPAL_API_BASE="https://api-m.sandbox.paypal.com"
+   ```
+
+   Usa únicamente credenciales sandbox para probar. Nunca publiques ni compartas el Client Secret o la service role key.
+4. Despliega las funciones `paypal-create-order` y `paypal-capture-order` con Supabase CLI. Para pagos reales, cambia `PAYPAL_API_BASE` a `https://api-m.paypal.com`, configura credenciales live y vuelve a guardar el Client ID live en `config.js`.
+5. Publica la actualización del frontend en GitHub Pages y prueba primero con una cuenta sandbox.
+
+Las funciones de servidor vuelven a consultar los precios de productos publicados en Supabase, crean el pedido en PayPal y verifican la captura y el importe antes de marcar el pedido como pagado. No se debe activar el entorno live hasta verificar las credenciales y la configuración. Actualmente el comprador recibe un número de pedido y la entrega del enlace premium sigue siendo manual; no se afirma que el diseño se haya entregado automáticamente.
 
 ## Notas antes de publicar
 
