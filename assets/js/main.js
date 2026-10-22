@@ -14,7 +14,6 @@ let toastTimer;
 let products = [];
 let supabase;
 let paypalSdkPromise;
-let activePaymentButton;
 
 const money = amount => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
@@ -202,10 +201,7 @@ document.querySelector(".checkout-button").addEventListener("click", async () =>
   paymentStatus.textContent = "";
   paymentStatus.classList.remove("payment-error", "payment-success");
   paymentCheckout.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  await renderPayPalButton(document.querySelector('input[name="payment-method"]:checked').value);
-});
-document.querySelectorAll('input[name="payment-method"]').forEach(input => {
-  input.addEventListener("change", () => renderPayPalButton(input.value));
+  await renderPayPalButton();
 });
 
 async function loadPayPalSdk() {
@@ -221,7 +217,6 @@ async function loadPayPalSdk() {
       sdkUrl.searchParams.set("currency", "USD");
       sdkUrl.searchParams.set("intent", "capture");
       sdkUrl.searchParams.set("components", "buttons");
-      sdkUrl.searchParams.set("enable-funding", "card");
       script.src = sdkUrl.toString();
       script.async = true;
       script.onload = () => window.paypal ? resolve(window.paypal) : reject(new Error("PayPal no cargó el checkout."));
@@ -251,9 +246,8 @@ async function requestPaymentFunction(name, payload) {
   return result;
 }
 
-async function renderPayPalButton(method) {
+async function renderPayPalButton() {
   if (!cart.items.length) return;
-  activePaymentButton = method;
   paypalButtonSlot.replaceChildren();
   paymentStatus.textContent = "";
   paymentStatus.classList.remove("payment-error", "payment-success");
@@ -263,12 +257,11 @@ async function renderPayPalButton(method) {
   paypalButtonSlot.append(loading);
   try {
     const paypal = await loadPayPalSdk();
-    if (activePaymentButton !== method || paymentCheckout.hidden) return;
+    if (paymentCheckout.hidden) return;
     paypalButtonSlot.replaceChildren();
-    const fundingSource = method === "card" ? paypal.FUNDING.CARD : paypal.FUNDING.PAYPAL;
     await paypal.Buttons({
-      fundingSource,
-      style: { layout: "vertical", label: method === "card" ? "pay" : "paypal", shape: "rect", height: 44 },
+      fundingSource: paypal.FUNDING.PAYPAL,
+      style: { layout: "vertical", label: "paypal", shape: "rect", height: 44 },
       createOrder: async () => {
         const result = await requestPaymentFunction("paypal-create-order", {
           items: cart.items.map(item => ({ id: item.id, quantity: item.quantity }))
