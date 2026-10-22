@@ -151,7 +151,7 @@ productGrid.addEventListener("click", event => {
   if (!product) return;
   if (button.dataset.action === "add") {
     cart.add({ ...product, image: "" });
-    showToast(`${product.name} se agregó al carrito. El pago todavía requiere verificación manual.`);
+    showToast(`${product.name} se agregó al carrito.`);
   } else if (button.dataset.action === "link" && product.link && isHttpsUrl(product.link)) {
     window.open(product.link, "_blank", "noopener,noreferrer");
   }
