@@ -42,6 +42,16 @@ export class Cart {
     this.notify();
   }
 
+  removePurchased(purchasedItems) {
+    for (const purchased of purchasedItems) {
+      const item = this.items.find(entry => entry.id === purchased.product_id);
+      if (!item) continue;
+      item.quantity -= purchased.quantity;
+      if (item.quantity <= 0) this.remove(item.id);
+    }
+    this.notify();
+  }
+
   get count() {
     return this.items.reduce((sum, item) => sum + item.quantity, 0);
   }

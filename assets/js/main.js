@@ -1,15 +1,20 @@
 import { categoryNames } from "./products.js";
 import { Cart } from "./cart.js";
-import { supabaseConfig, paypalMeUrl } from "./config.js";
+import { supabaseConfig, paypalClientId } from "./config.js";
 
 const productGrid = document.querySelector("#product-grid");
 const searchInput = document.querySelector("#product-search");
 const toast = document.querySelector(".toast");
 const catalogStatus = document.querySelector("#catalog-status");
+const paymentCheckout = document.querySelector("#payment-checkout");
+const paymentStatus = document.querySelector("#payment-status");
+const paypalButtonSlot = document.querySelector("#paypal-button-slot");
 let activeFilter = "all";
 let toastTimer;
 let products = [];
 let supabase;
+let paypalSdkPromise;
+let activePaymentButton;
 
 const money = amount => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
 const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, character => ({
@@ -131,6 +136,8 @@ function openCart() {
 }
 
 function closeCart() {
+  paymentCheckout.hidden = true;
+  paypalButtonSlot.replaceChildren();
   document.querySelector(".cart-drawer").classList.remove("open");
   document.querySelector(".cart-drawer").setAttribute("aria-hidden", "true");
   document.querySelector(".drawer-backdrop").hidden = true;
@@ -189,14 +196,105 @@ document.querySelector(".cart-trigger").addEventListener("click", openCart);
 document.querySelector(".drawer-close").addEventListener("click", closeCart);
 document.querySelector(".drawer-backdrop").addEventListener("click", closeCart);
 document.querySelector(".continue-shopping").addEventListener("click", closeCart);
-document.querySelector(".checkout-button").addEventListener("click", () => {
+document.querySelector(".checkout-button").addEventListener("click", async () => {
   if (!cart.items.length) return;
-  const amount = cart.total.toFixed(2);
-  const paymentUrl = new URL(`${paypalMeUrl}/${amount}USD`);
-  paymentUrl.searchParams.set("locale.x", "es_XC");
-  window.open(paymentUrl.toString(), "_blank", "noopener,noreferrer");
-  showToast("PayPal se abrió en otra pestaña. Comprueba el pago en tu cuenta antes de enviar el enlace.");
+  paymentCheckout.hidden = false;
+  paymentStatus.textContent = "";
+  paymentStatus.classList.remove("payment-error", "payment-success");
+  paymentCheckout.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  await renderPayPalButton(document.querySelector('input[name="payment-method"]:checked').value);
 });
+document.querySelectorAll('input[name="payment-method"]').forEach(input => {
+  input.addEventListener("change", () => renderPayPalButton(input.value));
+});
+
+async function loadPayPalSdk() {
+  if (!paypalClientId) {
+    throw new Error("Configura el Client ID público de PayPal en assets/js/config.js para activar el checkout.");
+  }
+  if (window.paypal) return window.paypal;
+  if (!paypalSdkPromise) {
+    paypalSdkPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      const sdkUrl = new URL("https://www.paypal.com/sdk/js");
+      sdkUrl.searchParams.set("client-id", paypalClientId);
+      sdkUrl.searchParams.set("currency", "USD");
+      sdkUrl.searchParams.set("intent", "capture");
+      sdkUrl.searchParams.set("components", "buttons");
+      sdkUrl.searchParams.set("enable-funding", "card");
+      script.src = sdkUrl.toString();
+      script.async = true;
+      script.onload = () => window.paypal ? resolve(window.paypal) : reject(new Error("PayPal no cargó el checkout."));
+      script.onerror = () => reject(new Error("No se pudo cargar PayPal. Comprueba la conexión y el Client ID."));
+      document.head.append(script);
+    });
+  }
+  return paypalSdkPromise;
+}
+
+async function renderPayPalButton(method) {
+  if (!cart.items.length) return;
+  activePaymentButton = method;
+  paypalButtonSlot.replaceChildren();
+  paymentStatus.textContent = "";
+  paymentStatus.classList.remove("payment-error", "payment-success");
+  const loading = document.createElement("p");
+  loading.className = "payment-status";
+  loading.textContent = "Cargando pago seguro…";
+  paypalButtonSlot.append(loading);
+  try {
+    const paypal = await loadPayPalSdk();
+    if (activePaymentButton !== method || paymentCheckout.hidden) return;
+    paypalButtonSlot.replaceChildren();
+    const fundingSource = method === "card" ? paypal.FUNDING.CARD : paypal.FUNDING.PAYPAL;
+    await paypal.Buttons({
+      fundingSource,
+      style: { layout: "vertical", label: method === "card" ? "pay" : "paypal", shape: "rect", height: 44 },
+      createOrder: async () => {
+        const response = await fetch(`${supabaseConfig.url}/functions/v1/paypal-create-order`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", apikey: supabaseConfig.anonKey },
+          body: JSON.stringify({ items: cart.items.map(item => ({ id: item.id, quantity: item.quantity })) })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || typeof result.orderId !== "string") {
+          throw new Error(result.error || "No se pudo iniciar el pago.");
+        }
+        return result.orderId;
+      },
+      onApprove: async data => {
+        paymentStatus.textContent = "Verificando el pago con PayPal…";
+        const response = await fetch(`${supabaseConfig.url}/functions/v1/paypal-capture-order`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", apikey: supabaseConfig.anonKey },
+          body: JSON.stringify({ orderId: data.orderID })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.status !== "COMPLETED" || !Array.isArray(result.items)) {
+          throw new Error(result.error || "PayPal no confirmó el pago. No cierres la página; puedes volver a intentarlo.");
+        }
+        cart.removePurchased(result.items);
+        document.querySelector(".cart-empty").hidden = true;
+        paymentStatus.classList.add("payment-success");
+        paymentStatus.textContent = `Pago confirmado. Guarda el número de pedido ${result.orderId}; la entrega del diseño se coordina manualmente con la tienda.`;
+        showToast("Pago confirmado por PayPal.");
+      },
+      onError: error => {
+        console.error("PayPal no pudo completar el checkout.", error);
+        paymentStatus.classList.add("payment-error");
+        paymentStatus.textContent = error?.message || "Ocurrió un error al procesar el pago. Inténtalo de nuevo.";
+      },
+      onCancel: () => {
+        paymentStatus.textContent = "Pago cancelado. No se realizó ningún cobro.";
+      }
+    }).render(paypalButtonSlot);
+  } catch (error) {
+    console.error("No se pudo preparar el checkout de PayPal.", error);
+    paypalButtonSlot.replaceChildren();
+    paymentStatus.classList.add("payment-error");
+    paymentStatus.textContent = error.message;
+  }
+}
 document.querySelector(".account-button").addEventListener("click", () => { window.location.href = "admin.html"; });
 
 document.querySelector(".menu-toggle").addEventListener("click", event => {
