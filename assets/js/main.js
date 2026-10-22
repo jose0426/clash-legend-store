@@ -31,7 +31,7 @@ function mapProduct(row) {
     categoryLabel: row.category === "free" ? "Base gratuita" : categoryNames[row.category] || "Premium",
     type: row.is_free ? "free" : "premium", description: row.description,
     price: Number(row.price), imageUrl: row.image_url, badge: row.is_free ? "Gratis" : "Premium",
-    bases: row.bundle_count || 0, link: row.design_link
+    bases: row.bundle_count || 0, link: row.is_free ? row.free_link : null
   };
 }
 
