@@ -128,6 +128,6 @@ Deno.serve(async request => {
     return jsonResponse({ orderId: paypalOrder.id }, 200, origin);
   } catch (error) {
     console.error("Error al crear pedido PayPal.", error);
-    return jsonResponse({ error: error instanceof Error ? error.message : "No se pudo iniciar el pago." }, 500, origin);
+    return jsonResponse({ error: "No se pudo iniciar el pago. Inténtalo de nuevo más tarde." }, 500, origin);
   }
 });
