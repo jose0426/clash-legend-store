@@ -64,10 +64,10 @@ function renderProducts() {
         <div class="product-category">${escapeHtml(product.categoryLabel)}</div>
         <h3>${escapeHtml(product.name)}</h3><p>${escapeHtml(product.description)}</p>
         ${product.bases ? `<div class="bundle-detail"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> ${product.bases} bases incluidas</div>` : ""}
-        <div class="product-bottom"><strong class="product-price">${product.price === 0 ? "Gratis" : money(product.price)}${product.price > 0 ? '<small> USD</small>' : ""}</strong>
+        <div class="product-bottom"><strong class="product-price">${product.price === 0 ? "Gratis" : "Aporte: " + money(product.price)}${product.price > 0 ? '<small>USD</small>' : ""}</strong>
           ${product.type === "free"
             ? `<button class="button button-small button-muted" type="button" data-action="link" data-id="${escapeHtml(product.id)}" ${product.link && isHttpsUrl(product.link) ? "" : "disabled"}>${product.link && isHttpsUrl(product.link) ? '<i class="fa-solid fa-download" aria-hidden="true"></i> Descargar' : "Enlace pendiente"}</button>`
-            : `<button class="button button-small button-primary" type="button" data-action="add" data-id="${escapeHtml(product.id)}"><i class="fa-solid fa-plus" aria-hidden="true"></i> Agregar al carrito</button>`}
+            : `<button class="button button-small button-primary" type="button" data-action="add" data-id="${escapeHtml(product.id)}"><i class="fa-solid fa-heart" aria-hidden="true"></i> Aportar por esta base</button>`}
         </div>
       </div>
     </article>`).join("");
@@ -151,7 +151,7 @@ productGrid.addEventListener("click", event => {
   if (!product) return;
   if (button.dataset.action === "add") {
     cart.add({ ...product, image: "" });
-    showToast(`${product.name} se agregó al carrito.`);
+    showToast(`${product.name} se agregó a tu aporte.`);
   } else if (button.dataset.action === "link" && product.link && isHttpsUrl(product.link)) {
     window.open(product.link, "_blank", "noopener,noreferrer");
   }
@@ -287,8 +287,8 @@ async function renderPayPalButton(method) {
         cart.removePurchased(result.items);
         document.querySelector(".cart-empty").hidden = true;
         paymentStatus.classList.add("payment-success");
-        paymentStatus.textContent = `Pago confirmado. Guarda el número de pedido ${result.orderId}; la entrega del diseño se coordina manualmente con la tienda.`;
-        showToast("Pago confirmado por PayPal.");
+        paymentStatus.textContent = `Aporte confirmado. Guarda el número de pedido ${result.orderId}; la entrega del diseño se coordina manualmente con la tienda.`;
+        showToast("Aporte confirmado por PayPal.");
       },
       onError: error => {
         console.error("PayPal no pudo completar el checkout.", error);
@@ -296,7 +296,7 @@ async function renderPayPalButton(method) {
         paymentStatus.textContent = error?.message || "Ocurrió un error al procesar el pago. Inténtalo de nuevo.";
       },
       onCancel: () => {
-        paymentStatus.textContent = "Pago cancelado. No se realizó ningún cobro.";
+        paymentStatus.textContent = "Proceso cancelado. No se realizó ningún cobro.";
       }
     }).render(paypalButtonSlot);
   } catch (error) {
