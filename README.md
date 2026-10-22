@@ -30,7 +30,7 @@ La tienda pública consulta únicamente fichas publicadas. Las imágenes se guar
 
 ## PayPal Checkout
 
-El checkout permite escoger PayPal o tarjeta de débito/crédito. PayPal decide si la opción de tarjeta está disponible para la cuenta del vendedor y el país del comprador. El navegador nunca recibe el secreto de PayPal ni almacena datos de tarjetas.
+El checkout permite escoger PayPal o tarjeta de débito/crédito. El aporte de cada base premium es fijo y corresponde al precio configurado para esa base; el servidor vuelve a verificar ese importe antes de crear el pedido. Tras confirmar el pago, la entrega del enlace de diseño se coordina manualmente. Como se entrega un diseño a cambio del pago, PayPal lo procesa como una transacción comercial, no como una donación benéfica. PayPal decide si la opción de tarjeta está disponible para la cuenta del vendedor y el país del comprador. El navegador nunca recibe el secreto de PayPal ni almacena datos de tarjetas.
 
 Para habilitar pagos reales:
 
