@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <title>Administración | Clash Legend Store</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/responsive.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <script type="module" src="assets/js/admin.js"></script>
+</head>
+<body>
+  <div class="announcement"><i class="fa-solid fa-lock" aria-hidden="true"></i> PANEL PRIVADO · Solo administración</div>
+  <header class="site-header admin-header">
+    <a class="brand" href="index.html"><span class="brand-mark"><i class="fa-solid fa-crown" aria-hidden="true"></i></span><span class="brand-name">CLASH <b>LEGEND</b><small>ADMIN</small></span></a>
+    <a class="text-link" href="index.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Volver a la tienda</a>
+  </header>
+  <main class="admin-main">
+    <section class="admin-intro">
+      <span class="eyebrow">GESTIÓN DE CATÁLOGO</span>
+      <h1>Panel de <span>administración</span></h1>
+      <p>Inicia sesión para publicar bases, subir imágenes y gestionar sus enlaces.</p>
+    </section>
+    <div class="admin-notice" id="admin-notice" role="status" hidden></div>
+    <section class="setup-help panel-card" id="setup-help">
+      <div class="panel-title"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><h2>Activa la subida de tus bases</h2><p>La conexión del proyecto ya está guardada. Completa estos dos pasos en Supabase para habilitar el acceso y guardar tus diseños:</p></div></div>
+      <ol>
+        <li>Abre tu <a href="https://supabase.com/dashboard/project/obhdjbpnrzzxtiqfbwne" target="_blank" rel="noopener noreferrer">proyecto Supabase</a>, entra a <strong>SQL Editor → New query</strong>, copia todo el archivo <code>supabase/setup.sql</code> de esta carpeta, pégalo y pulsa <strong>Run</strong>. El correo de administración ya está puesto en el SQL.</li>
+        <li>En Supabase, ve a <strong>Authentication → Users → Add user</strong> y crea el usuario <code>josegood222@gmail.com</code>. Define tú la contraseña ahí; no la compartas aquí.</li>
+        <li>Vuelve a esta página, inicia sesión con ese correo y la contraseña que creaste. Entonces aparecerá el formulario para subir tus imágenes, enlaces y precios.</li>
+      </ol>
+      <p class="field-help">La URL y clave pública ya están configuradas. No compartas contraseñas ni claves privadas de Supabase. Guía completa: <a href="README.md" target="_blank">README del proyecto</a>.</p>
+    </section>
+    <section class="admin-login panel-card" id="login-panel">
+      <div class="panel-title"><i class="fa-solid fa-user-shield" aria-hidden="true"></i><div><h2>Iniciar sesión</h2><p>El acceso se crea y administra desde Supabase. No hay registro público.</p></div></div>
+      <form id="login-form" class="admin-form login-form">
+        <label>Correo de administrador<input name="email" type="email" autocomplete="username" required></label>
+        <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="button button-primary" type="submit">Entrar al panel <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+      </form>
+    </section>
+    <section class="admin-dashboard" id="dashboard" hidden>
+      <div class="dashboard-heading">
+        <div><span class="eyebrow">CATÁLOGO PRIVADO</span><h2>Tus bases</h2></div>
+        <div class="dashboard-actions"><span class="admin-email" id="admin-email"></span><button class="button button-outline" id="sign-out" type="button">Cerrar sesión</button></div>
+      </div>
+      <div class="admin-layout">
+        <form id="product-form" class="panel-card admin-form">
+          <div class="panel-title"><i class="fa-solid fa-square-plus" aria-hidden="true"></i><div><h2 id="form-title">Agregar una base</h2><p>Las bases no se muestran hasta que marques “Publicada”.</p></div></div>
+          <input type="hidden" name="id">
+          <label>Nombre de la base<input name="name" maxlength="100" required></label>
+          <div class="form-columns">
+            <label>Nivel del Ayuntamiento<input name="townHall" maxlength="30" placeholder="TH 17" required></label>
+            <label>Categoría<select name="category" required><option value="legend">Leyenda</option><option value="war">Guerra</option><option value="defense">Defensiva</option><option value="bundle">Paquete premium</option></select></label>
+          </div>
+          <label>Descripción<textarea name="description" rows="3" maxlength="400" required></textarea></label>
+          <label class="check-label"><input name="isFree" type="checkbox"> Esta base es gratuita</label>
+          <label>Precio (USD)<input name="price" type="number" min="0.01" max="9999" step="0.01" value="1.00" required></label>
+          <label>Número de bases (opcional, para paquetes)<input name="bundleCount" type="number" min="0" max="100" step="1" value="0"></label>
+          <label>Enlace del diseño de Clash of Clans<input name="designLink" type="url" placeholder="https://link.clashofclans.com/..." required></label>
+          <p class="field-help">El enlace de una base gratuita se muestra al público. Los enlaces premium quedan privados; entrégalos solo tras verificar el pago en PayPal.</p>
+          <label>Imagen de vista previa (JPG, PNG o WebP; máximo 5 MB)<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          <label class="check-label"><input name="isPublished" type="checkbox" checked> Publicada en la tienda</label>
+          <div class="form-actions"><button class="button button-primary" type="submit">Guardar base</button><button class="button button-outline" id="cancel-edit" type="button" hidden>Cancelar edición</button></div>
+        </form>
+        <section class="panel-card admin-products">
+          <div class="panel-title"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><div><h2>Elementos guardados</h2><p>Solo las bases publicadas aparecen en el catálogo público.</p></div></div>
+          <div id="admin-product-list" class="admin-product-list"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <footer class="admin-footer"><a href="index.html">Clash Legend Store</a><span>PayPal.Me: pagos externos con verificación manual.</span></footer>
+  <div class="toast" id="admin-toast" role="status" aria-live="polite"></div>
+</body>
+</html>
