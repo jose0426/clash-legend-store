@@ -210,7 +210,7 @@ document.querySelectorAll('input[name="payment-method"]').forEach(input => {
 
 async function loadPayPalSdk() {
   if (!paypalClientId) {
-    throw new Error("Configura el Client ID público de PayPal en assets/js/config.js para activar el checkout.");
+    throw new Error("El pago en línea aún no está disponible. No se realizó ningún cobro.");
   }
   if (window.paypal) return window.paypal;
   if (!paypalSdkPromise) {
